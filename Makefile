@@ -43,7 +43,7 @@ generate:
 
 # --- macOS ---
 
-.PHONY: build-mac run-mac
+.PHONY: build-mac run-mac install-mac
 
 build-mac:
 	xcodebuild -project $(XCODE_PROJECT) -scheme NotifyHub_macOS \
@@ -56,6 +56,12 @@ build-mac:
 run-mac: build-mac
 	@pkill -f NotifyHub 2>/dev/null; sleep 0.5; true
 	@open build/NotifyHub.app
+
+install-mac: build-mac
+	@pkill -f NotifyHub 2>/dev/null; sleep 0.5; true
+	@rm -rf /Applications/NotifyHub.app
+	@cp -R build/NotifyHub.app /Applications/NotifyHub.app
+	@echo "✓ Installed to /Applications/NotifyHub.app"
 
 # --- iOS ---
 

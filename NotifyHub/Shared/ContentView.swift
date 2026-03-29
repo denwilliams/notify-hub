@@ -18,7 +18,11 @@ struct ContentView: View {
         #if os(macOS)
         macOSLayout
         #else
-        iOSLayout
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            iPadDashboardView()
+        } else {
+            iOSLayout
+        }
         #endif
     }
 

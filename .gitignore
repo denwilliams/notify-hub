@@ -3,6 +3,9 @@ NotifyHub/Secrets.xcconfig
 NotifyHub/*.xcodeproj
 NotifyHub/*.xcworkspace
 
+# Build output
+build/
+
 # Cloudflare
 .wrangler/
 .dev.vars

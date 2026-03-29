@@ -48,10 +48,14 @@ generate:
 build-mac:
 	xcodebuild -project $(XCODE_PROJECT) -scheme NotifyHub_macOS \
 		-destination 'platform=macOS' -configuration Debug build
+	@mkdir -p build
+	@rm -rf build/NotifyHub.app
+	@cp -R "$(MAC_APP)" build/NotifyHub.app
+	@echo "✓ build/NotifyHub.app"
 
 run-mac: build-mac
 	@pkill -f NotifyHub 2>/dev/null; sleep 0.5; true
-	@open "$(MAC_APP)"
+	@open build/NotifyHub.app
 
 # --- iOS ---
 

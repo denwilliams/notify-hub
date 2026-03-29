@@ -21,6 +21,7 @@ targets:
       - path: Shared
       - path: iOS
       - path: macOS
+      - path: Resources/Assets.xcassets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.notifyhub.app
@@ -29,6 +30,7 @@ targets:
         SWIFT_VERSION: "5.10"
         INFOPLIST_FILE: Resources/Info.plist
         GENERATE_INFOPLIST_FILE: false
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: false
       configs:
         Debug:

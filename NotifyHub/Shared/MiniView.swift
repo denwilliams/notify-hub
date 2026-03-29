@@ -99,7 +99,7 @@ struct MiniView: View {
                             .font(.system(size: 9))
                             .foregroundStyle(.tertiary)
                         Spacer()
-                        Text(event.createdAt, style: .relative)
+                        RelativeTimeText(date: event.createdAt)
                             .font(.system(size: 9))
                             .foregroundStyle(.tertiary)
                     }
@@ -123,11 +123,13 @@ struct MiniView: View {
         .task(id: isHovering) {
             guard !isHovering else { return }
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(3))
+                try? await Task.sleep(for: .seconds(10))
                 guard !isHovering else { return }
                 let unread = unreadIndices
-                guard unread.count > 1 else { continue }
-                // Find the next unread index after current
+                guard !unread.isEmpty else { continue }
+                // If currently on an unread event and it's the only one, stay
+                if unread.count == 1 && unread.first == currentIndex { continue }
+                // Find the next unread index after current, wrapping around
                 let next = unread.first(where: { $0 > currentIndex }) ?? unread.first!
                 withAnimation(.easeInOut(duration: 0.15)) {
                     currentIndex = next

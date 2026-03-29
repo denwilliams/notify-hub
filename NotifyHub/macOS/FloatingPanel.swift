@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import SwiftUI
 
@@ -47,3 +48,4 @@ class FloatingPanel: NSPanel {
         center()
     }
 }
+#endif

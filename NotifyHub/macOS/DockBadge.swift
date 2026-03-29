@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 
 enum DockBadge {
@@ -9,3 +10,4 @@ enum DockBadge {
         NSApp.requestUserAttention(.criticalRequest)
     }
 }
+#endif

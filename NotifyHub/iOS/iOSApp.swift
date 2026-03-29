@@ -1,3 +1,4 @@
+#if os(iOS)
 import UIKit
 import BackgroundTasks
 
@@ -35,7 +36,7 @@ class IOSAppDelegate: NSObject, UIApplicationDelegate {
         let fetchTask = Task {
             let store = NotificationStore()
             await store.refresh()
-            await AppBadge.update(count: store.unreadCount)
+            AppBadge.update(count: store.unreadCount)
             task.setTaskCompleted(success: true)
         }
 
@@ -45,3 +46,4 @@ class IOSAppDelegate: NSObject, UIApplicationDelegate {
         }
     }
 }
+#endif

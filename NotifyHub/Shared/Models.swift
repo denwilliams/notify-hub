@@ -6,7 +6,7 @@ enum EventLevel: String, Codable, CaseIterable {
     case error
 }
 
-struct NotifyEvent: Identifiable, Codable {
+struct NotifyEvent: Identifiable, Codable, Hashable {
     let id: Int
     let title: String
     let message: String

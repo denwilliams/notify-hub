@@ -1,3 +1,4 @@
+#if os(macOS)
 import AppKit
 import SwiftUI
 import ServiceManagement
@@ -52,3 +53,4 @@ class MacAppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 }
+#endif

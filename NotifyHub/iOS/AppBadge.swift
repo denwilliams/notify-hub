@@ -1,3 +1,4 @@
+#if os(iOS)
 import UIKit
 import UserNotifications
 
@@ -11,3 +12,4 @@ enum AppBadge {
         UNUserNotificationCenter.current().setBadgeCount(count)
     }
 }
+#endif

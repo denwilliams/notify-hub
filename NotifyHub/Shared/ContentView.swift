@@ -80,6 +80,19 @@ struct ContentView: View {
                 .navigationTitle("NotifyHub")
         } detail: {
             detailView
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button { navigatePrevious() } label: {
+                            Image(systemName: "chevron.up")
+                        }
+                        .disabled(selectedIndex == nil || selectedIndex == 0)
+
+                        Button { navigateNext() } label: {
+                            Image(systemName: "chevron.down")
+                        }
+                        .disabled(selectedIndex == nil || selectedIndex == store.events.count - 1)
+                    }
+                }
         }
         .task { if envStore == nil { await ownStore.refresh() } }
     }

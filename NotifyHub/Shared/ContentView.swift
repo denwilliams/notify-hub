@@ -1,39 +1,106 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var store = NotificationStore()
-    @State private var selectedEvent: NotifyEvent?
+    @Environment(NotificationStore.self) private var envStore: NotificationStore?
+    @State private var ownStore = NotificationStore()
+    @State var selectedEvent: NotifyEvent?
+    @State var showSidebar = true
+    var extraToolbar: (() -> AnyView)? = nil
+
+    private var store: NotificationStore { envStore ?? ownStore }
+
+    private var selectedIndex: Int? {
+        guard let selected = selectedEvent else { return nil }
+        return store.events.firstIndex(of: selected)
+    }
 
     var body: some View {
-        NavigationSplitView {
-            List(store.events, selection: $selectedEvent) { event in
-                EventRow(event: event)
-                    .tag(event)
-                    .onAppear {
-                        if event.id == store.events.last?.id {
-                            Task { await store.loadMore() }
+        HSplitView {
+            if showSidebar {
+                List(store.events, selection: $selectedEvent) { event in
+                    EventRow(event: event)
+                        .tag(event)
+                        .onAppear {
+                            if event.id == store.events.last?.id {
+                                Task { await store.loadMore() }
+                            }
                         }
+                }
+                .listStyle(.sidebar)
+                .frame(minWidth: 200, idealWidth: 250, maxWidth: 300)
+                .overlay {
+                    if store.events.isEmpty && !store.isLoading {
+                        ContentUnavailableView(
+                            "No Events",
+                            systemImage: "bell.slash",
+                            description: Text(store.error ?? "Events will appear here when received.")
+                        )
                     }
-            }
-            .navigationTitle("NotifyHub")
-            .refreshable { await store.refresh() }
-            .overlay {
-                if store.events.isEmpty && !store.isLoading {
-                    ContentUnavailableView(
-                        "No Events",
-                        systemImage: "bell.slash",
-                        description: Text(store.error ?? "Events will appear here when received.")
-                    )
                 }
             }
-        } detail: {
-            if let event = selectedEvent {
-                EventDetailView(event: event, store: store)
-            } else {
-                ContentUnavailableView("Select an Event", systemImage: "bell")
+
+            VStack(spacing: 0) {
+                // Fixed toolbar
+                HStack(spacing: 12) {
+                    Button {
+                        withAnimation { showSidebar.toggle() }
+                    } label: {
+                        Image(systemName: "sidebar.left")
+                            .font(.system(size: 13))
+                    }
+                    .buttonStyle(.plain)
+                    .help(showSidebar ? "Hide sidebar" : "Show sidebar")
+
+                    Button { navigatePrevious() } label: {
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 11, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(selectedIndex == nil || selectedIndex == 0)
+
+                    Button { navigateNext() } label: {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 11, weight: .semibold))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(selectedIndex == nil || selectedIndex == store.events.count - 1)
+
+                    Spacer()
+
+                    if let extraToolbar {
+                        extraToolbar()
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+
+                Divider()
+
+                // Detail
+                Group {
+                    if let event = selectedEvent {
+                        EventDetailView(event: event, store: store)
+                    } else {
+                        ContentUnavailableView("Select an Event", systemImage: "bell")
+                    }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .task { await store.refresh() }
+        .refreshable { await store.refresh() }
+        .task {
+            if envStore == nil { await ownStore.refresh() }
+        }
+    }
+
+    private func navigatePrevious() {
+        guard let idx = selectedIndex, idx > 0 else { return }
+        selectedEvent = store.events[idx - 1]
+    }
+
+    private func navigateNext() {
+        guard let idx = selectedIndex, idx < store.events.count - 1 else { return }
+        selectedEvent = store.events[idx + 1]
     }
 }
 

@@ -3,38 +3,53 @@ import AppKit
 import SwiftUI
 
 class FloatingPanelController {
-    private var panel: FloatingPanel?
-    private var isCollapsed = false
-    private let expandedSize = NSSize(width: 360, height: 500)
-    private let collapsedSize = NSSize(width: 200, height: 48)
+    private var miniPanel: MiniPanel?
+    private var fullPanel: FullPanel?
+    private let store = NotificationStore()
+    @State private var currentIndex = 0
+    private var isPinned = true
 
-    func show(with contentView: some View) {
-        if let panel {
-            panel.makeKeyAndOrderFront(nil)
+    func show() {
+        if miniPanel != nil || fullPanel != nil {
+            miniPanel?.makeKeyAndOrderFront(nil)
             return
         }
 
-        let panel = FloatingPanel(contentView: contentView)
-        panel.makeKeyAndOrderFront(nil)
-        self.panel = panel
+        let rootView = PanelRootView(
+            store: store,
+            onExpand: { [weak self] in self?.showFull() },
+            onCollapse: { [weak self] in self?.showMini() },
+            onTogglePin: { [weak self] pinned in
+                self?.isPinned = pinned
+                self?.miniPanel?.setAlwaysOnTop(pinned)
+                self?.fullPanel?.setAlwaysOnTop(pinned)
+            }
+        )
+
+        let mini = MiniPanel(contentView: rootView.miniContent)
+        mini.makeKeyAndOrderFront(nil)
+        self.miniPanel = mini
+
+        // Pre-create full panel (hidden)
+        let full = FullPanel(contentView: rootView.fullContent)
+        self.fullPanel = full
     }
 
-    func toggle() {
-        guard let panel else { return }
+    private func showFull() {
+        miniPanel?.savePosition()
+        miniPanel?.orderOut(nil)
+        fullPanel?.makeKeyAndOrderFront(nil)
+    }
 
-        isCollapsed.toggle()
-        let origin = panel.frame.origin
-        let newSize = isCollapsed ? collapsedSize : expandedSize
-
-        panel.setFrame(
-            NSRect(origin: origin, size: newSize),
-            display: true,
-            animate: true
-        )
+    private func showMini() {
+        fullPanel?.savePosition()
+        fullPanel?.orderOut(nil)
+        miniPanel?.makeKeyAndOrderFront(nil)
     }
 
     func saveState() {
-        panel?.savePosition()
+        miniPanel?.savePosition()
+        fullPanel?.savePosition()
     }
 }
 #endif

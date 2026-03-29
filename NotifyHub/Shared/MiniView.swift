@@ -28,15 +28,15 @@ struct MiniView: View {
 
                 Button {
                     withAnimation(.easeInOut(duration: 0.1)) {
-                        currentIndex = min(currentIndex + 1, max(store.events.count - 1, 0))
+                        currentIndex = max(currentIndex - 1, 0)
                     }
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 9, weight: .semibold))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(currentIndex < store.events.count - 1 ? .secondary : .quaternary)
-                .disabled(store.events.isEmpty || currentIndex >= store.events.count - 1)
+                .foregroundStyle(currentIndex > 0 ? .secondary : .quaternary)
+                .disabled(currentIndex <= 0)
 
                 Text(store.events.isEmpty ? "0/0" : "\(currentIndex + 1)/\(store.events.count)")
                     .font(.system(size: 9).monospacedDigit())
@@ -44,15 +44,15 @@ struct MiniView: View {
 
                 Button {
                     withAnimation(.easeInOut(duration: 0.1)) {
-                        currentIndex = max(currentIndex - 1, 0)
+                        currentIndex = min(currentIndex + 1, max(store.events.count - 1, 0))
                     }
                 } label: {
                     Image(systemName: "chevron.right")
                         .font(.system(size: 9, weight: .semibold))
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(currentIndex > 0 ? .secondary : .quaternary)
-                .disabled(currentIndex <= 0)
+                .foregroundStyle(currentIndex < store.events.count - 1 ? .secondary : .quaternary)
+                .disabled(store.events.isEmpty || currentIndex >= store.events.count - 1)
 
                 Spacer()
 

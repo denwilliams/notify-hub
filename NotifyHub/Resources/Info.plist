@@ -20,8 +20,8 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>UILaunchScreen</key>
 	<dict/>
-	<key>WorkerURL</key>
-	<string>$(WORKER_URL)</string>
+	<key>WorkerHost</key>
+	<string>$(WORKER_HOST)</string>
 	<key>APIKey</key>
 	<string>$(API_KEY)</string>
 	<key>UIBackgroundModes</key>

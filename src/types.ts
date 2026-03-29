@@ -16,6 +16,7 @@ export interface EventRow {
   level: string;
   urgent: number;
   url: string | null;
+  task_id: string | null;
   pushed: number;
   read_at: string | null;
   created_at: string;

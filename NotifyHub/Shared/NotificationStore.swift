@@ -13,6 +13,14 @@ final class NotificationStore {
         events.filter { !$0.isRead }.count
     }
 
+    var upcomingEvents: [NotifyEvent] {
+        events.filter { $0.isUpcoming }.sorted { $0.createdAt < $1.createdAt }
+    }
+
+    var pastEvents: [NotifyEvent] {
+        events.filter { !$0.isUpcoming }
+    }
+
     @MainActor
     func refresh() async {
         isLoading = true

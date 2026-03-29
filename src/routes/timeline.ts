@@ -35,6 +35,7 @@ app.get("/", async (c) => {
       level: e.level,
       urgent: e.urgent === 1,
       url: e.url,
+      task_id: e.task_id,
       created_at: e.created_at,
       read_at: e.read_at,
     })),

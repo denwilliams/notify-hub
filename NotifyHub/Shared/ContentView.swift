@@ -103,14 +103,26 @@ struct ContentView: View {
     #endif
 
     private var eventList: some View {
-        List(store.events, selection: $selectedEvent) { event in
-            EventRow(event: event)
-                .tag(event)
-                .onAppear {
-                    if event.id == store.events.last?.id {
-                        Task { await store.loadMore() }
+        List(selection: $selectedEvent) {
+            if !store.upcomingEvents.isEmpty {
+                Section("Upcoming") {
+                    ForEach(store.upcomingEvents) { event in
+                        EventRow(event: event)
+                            .tag(event)
                     }
                 }
+            }
+            Section(store.upcomingEvents.isEmpty ? "" : "Past") {
+                ForEach(store.pastEvents) { event in
+                    EventRow(event: event)
+                        .tag(event)
+                        .onAppear {
+                            if event.id == store.events.last?.id {
+                                Task { await store.loadMore() }
+                            }
+                        }
+                }
+            }
         }
         .listStyle(.sidebar)
         .refreshable { await store.refresh() }
@@ -208,6 +220,9 @@ struct EventRow: View {
             Image(systemName: "exclamationmark.circle.fill")
                 .foregroundStyle(.yellow)
                 .font(.caption)
+        case .inProgress:
+            ProgressView()
+                .controlSize(.small)
         case .info:
             EmptyView()
         }

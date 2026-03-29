@@ -4,7 +4,7 @@ const API_KEY = "test-api-key";
 
 export async function applySchema() {
   await env.DB.exec(
-    "CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, message TEXT NOT NULL, source TEXT NOT NULL, level TEXT NOT NULL DEFAULT 'info', urgent INTEGER NOT NULL DEFAULT 0, url TEXT, pushed INTEGER NOT NULL DEFAULT 0, read_at TEXT, created_at TEXT NOT NULL);"
+    "CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, message TEXT NOT NULL, source TEXT NOT NULL, level TEXT NOT NULL DEFAULT 'info', urgent INTEGER NOT NULL DEFAULT 0, url TEXT, task_id TEXT, pushed INTEGER NOT NULL DEFAULT 0, read_at TEXT, created_at TEXT NOT NULL);"
   );
 }
 
@@ -20,14 +20,15 @@ export async function seedEvent(overrides: Record<string, unknown> = {}) {
     level: "info",
     urgent: 0,
     url: null,
+    task_id: null,
     pushed: 0,
     read_at: null,
     created_at: new Date().toISOString(),
   };
   const data = { ...defaults, ...overrides };
   const result = await env.DB.prepare(
-    `INSERT INTO events (title, message, source, level, urgent, url, pushed, read_at, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO events (title, message, source, level, urgent, url, task_id, pushed, read_at, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       data.title,
@@ -36,6 +37,7 @@ export async function seedEvent(overrides: Record<string, unknown> = {}) {
       data.level,
       data.urgent,
       data.url,
+      data.task_id,
       data.pushed,
       data.read_at,
       data.created_at

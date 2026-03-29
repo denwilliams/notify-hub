@@ -69,6 +69,9 @@ struct EventDetailView: View {
         case .warn:
             Image(systemName: "exclamationmark.circle.fill")
                 .foregroundStyle(.yellow)
+        case .inProgress:
+            Image(systemName: "arrow.trianglehead.2.counterclockwise")
+                .foregroundStyle(.yellow)
         case .info:
             Image(systemName: "info.circle.fill")
                 .foregroundStyle(.blue)

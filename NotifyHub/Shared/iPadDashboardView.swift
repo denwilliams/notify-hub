@@ -112,7 +112,16 @@ struct iPadDashboardView: View {
 
     private var denseList: some View {
         List {
-            ForEach(store.events) { event in
+            if !store.upcomingEvents.isEmpty {
+                Section("Upcoming") {
+                    ForEach(store.upcomingEvents) { event in
+                        DenseEventRow(event: event)
+                            .contentShape(Rectangle())
+                            .onTapGesture { selectedEvent = event }
+                    }
+                }
+            }
+            ForEach(store.pastEvents) { event in
                 DenseEventRow(event: event)
                     .contentShape(Rectangle())
                     .onTapGesture { selectedEvent = event }
@@ -203,6 +212,9 @@ private struct CarouselCard: View {
         case .warn:
             Image(systemName: "exclamationmark.circle.fill")
                 .foregroundStyle(.yellow)
+        case .inProgress:
+            ProgressView()
+                .controlSize(.small)
         case .info:
             if !event.isRead {
                 Circle()
@@ -265,6 +277,9 @@ private struct DenseEventRow: View {
             Image(systemName: "exclamationmark.circle.fill")
                 .font(.system(size: 10))
                 .foregroundStyle(.yellow)
+        case .inProgress:
+            ProgressView()
+                .controlSize(.mini)
         case .info:
             EmptyView()
         }

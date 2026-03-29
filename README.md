@@ -29,8 +29,9 @@ curl -X POST https://your-worker.workers.dev/notify \
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `level` | string | `info` | `info`, `warn`, or `error` |
+| `level` | string | `info` | `info`, `warn`, `error`, or `in_progress` |
 | `url` | string | `null` | Link to open on tap |
+| `task_id` | string | `null` | Upsert key — events with the same `task_id` replace older ones |
 
 ### Examples
 

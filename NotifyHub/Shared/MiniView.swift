@@ -105,9 +105,6 @@ struct MiniView: View {
                     }
                 }
                 .contentShape(Rectangle())
-                .onTapGesture(count: 2) {
-                    Task { await store.toggleRead(event) }
-                }
             } else {
                 Text("No events")
                     .font(.system(size: 10))
@@ -117,6 +114,30 @@ struct MiniView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .frame(width: 220)
+        .overlay {
+            HStack(spacing: 0) {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) {
+                        if let event { Task { await store.toggleRead(event) } }
+                    }
+                    .onTapGesture(count: 1) {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            currentIndex = max(currentIndex - 1, 0)
+                        }
+                    }
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) {
+                        if let event { Task { await store.toggleRead(event) } }
+                    }
+                    .onTapGesture(count: 1) {
+                        withAnimation(.easeInOut(duration: 0.1)) {
+                            currentIndex = min(currentIndex + 1, max(store.events.count - 1, 0))
+                        }
+                    }
+            }
+        }
         .onHover { hovering in
             isHovering = hovering
         }

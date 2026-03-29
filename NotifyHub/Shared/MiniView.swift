@@ -7,10 +7,15 @@ struct MiniView: View {
     var onExpand: () -> Void
     var onTogglePin: () -> Void
     var isPinned: Bool
+    @State private var isHovering = false
 
     private var event: NotifyEvent? {
         guard !store.events.isEmpty, currentIndex < store.events.count else { return nil }
         return store.events[currentIndex]
+    }
+
+    private var unreadIndices: [Int] {
+        store.events.enumerated().compactMap { $0.element.isRead ? nil : $0.offset }
     }
 
     var body: some View {
@@ -112,6 +117,23 @@ struct MiniView: View {
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .frame(width: 220)
+        .onHover { hovering in
+            isHovering = hovering
+        }
+        .task(id: isHovering) {
+            guard !isHovering else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(3))
+                guard !isHovering else { return }
+                let unread = unreadIndices
+                guard unread.count > 1 else { continue }
+                // Find the next unread index after current
+                let next = unread.first(where: { $0 > currentIndex }) ?? unread.first!
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    currentIndex = next
+                }
+            }
+        }
     }
 
 

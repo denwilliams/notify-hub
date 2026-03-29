@@ -15,32 +15,22 @@ struct ContentView: View {
     }
 
     var body: some View {
+        #if os(macOS)
+        macOSLayout
+        #else
+        iOSLayout
+        #endif
+    }
+
+    #if os(macOS)
+    private var macOSLayout: some View {
         HSplitView {
             if showSidebar {
-                List(store.events, selection: $selectedEvent) { event in
-                    EventRow(event: event)
-                        .tag(event)
-                        .onAppear {
-                            if event.id == store.events.last?.id {
-                                Task { await store.loadMore() }
-                            }
-                        }
-                }
-                .listStyle(.sidebar)
-                .frame(minWidth: 200, idealWidth: 250, maxWidth: 300)
-                .overlay {
-                    if store.events.isEmpty && !store.isLoading {
-                        ContentUnavailableView(
-                            "No Events",
-                            systemImage: "bell.slash",
-                            description: Text(store.error ?? "Events will appear here when received.")
-                        )
-                    }
-                }
+                eventList
+                    .frame(minWidth: 200, idealWidth: 250, maxWidth: 300)
             }
 
             VStack(spacing: 0) {
-                // Fixed toolbar
                 HStack(spacing: 12) {
                     Button {
                         withAnimation { showSidebar.toggle() }
@@ -76,21 +66,57 @@ struct ContentView: View {
 
                 Divider()
 
-                // Detail
-                Group {
-                    if let event = selectedEvent {
-                        EventDetailView(event: event, store: store)
-                    } else {
-                        ContentUnavailableView("Select an Event", systemImage: "bell")
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                detailView
             }
         }
-        .refreshable { await store.refresh() }
-        .task {
-            if envStore == nil { await ownStore.refresh() }
+        .task { if envStore == nil { await ownStore.refresh() } }
+    }
+    #endif
+
+    #if os(iOS)
+    private var iOSLayout: some View {
+        NavigationSplitView {
+            eventList
+                .navigationTitle("NotifyHub")
+        } detail: {
+            detailView
         }
+        .task { if envStore == nil { await ownStore.refresh() } }
+    }
+    #endif
+
+    private var eventList: some View {
+        List(store.events, selection: $selectedEvent) { event in
+            EventRow(event: event)
+                .tag(event)
+                .onAppear {
+                    if event.id == store.events.last?.id {
+                        Task { await store.loadMore() }
+                    }
+                }
+        }
+        .listStyle(.sidebar)
+        .refreshable { await store.refresh() }
+        .overlay {
+            if store.events.isEmpty && !store.isLoading {
+                ContentUnavailableView(
+                    "No Events",
+                    systemImage: "bell.slash",
+                    description: Text(store.error ?? "Events will appear here when received.")
+                )
+            }
+        }
+    }
+
+    private var detailView: some View {
+        Group {
+            if let event = selectedEvent {
+                EventDetailView(event: event, store: store)
+            } else {
+                ContentUnavailableView("Select an Event", systemImage: "bell")
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     private func navigatePrevious() {

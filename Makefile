@@ -83,16 +83,22 @@ run-ios: build-ios
 .PHONY: install-iphone install-ipad
 
 install-iphone:
+	$(eval DEVICE_ID := $(shell xcrun devicectl list devices 2>/dev/null | grep iPhone | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -1))
 	xcodebuild -project $(XCODE_PROJECT) -scheme NotifyHub_iOS \
-		-destination 'platform=iOS,name=*iPhone*' \
-		-configuration Debug build
-	@echo "✓ Built and installed to connected iPhone"
+		-destination 'platform=iOS,id=$(DEVICE_ID)' \
+		-configuration Debug -allowProvisioningUpdates build
+	xcrun devicectl device install app --device $(DEVICE_ID) \
+		$$(find $(DERIVED_DATA)/NotifyHub-*/Build/Products/Debug-iphoneos/NotifyHub.app -maxdepth 0 | head -1)
+	@echo "✓ Installed to iPhone"
 
 install-ipad:
+	$(eval DEVICE_ID := $(shell xcrun devicectl list devices 2>/dev/null | grep iPad | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -1))
 	xcodebuild -project $(XCODE_PROJECT) -scheme NotifyHub_iOS \
-		-destination 'platform=iOS,name=*iPad*' \
-		-configuration Debug build
-	@echo "✓ Built and installed to connected iPad"
+		-destination 'platform=iOS,id=$(DEVICE_ID)' \
+		-configuration Debug -allowProvisioningUpdates build
+	xcrun devicectl device install app --device $(DEVICE_ID) \
+		$$(find $(DERIVED_DATA)/NotifyHub-*/Build/Products/Debug-iphoneos/NotifyHub.app -maxdepth 0 | head -1)
+	@echo "✓ Installed to iPad"
 
 # --- All ---
 

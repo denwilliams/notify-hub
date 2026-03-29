@@ -59,12 +59,12 @@ struct iPadDashboardView: View {
         }
     }
 
-    // MARK: - Landscape: carousel on left, list on right
+    // MARK: - Landscape: carousel on top, list below
 
     private var landscapeLayout: some View {
-        HStack(spacing: 0) {
+        VStack(spacing: 0) {
             carouselSection
-                .frame(width: 340)
+                .frame(height: 220)
 
             Divider()
 
@@ -173,8 +173,8 @@ private struct CarouselCard: View {
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(14)
-        .frame(width: 260, height: 130)
+        .padding(16)
+        .frame(width: 320, height: 160)
         .background {
             RoundedRectangle(cornerRadius: 14)
                 .fill(.background)
@@ -183,7 +183,13 @@ private struct CarouselCard: View {
         .overlay {
             if !event.isRead {
                 RoundedRectangle(cornerRadius: 14)
-                    .strokeBorder(.blue, lineWidth: 2)
+                    .strokeBorder(.blue, lineWidth: 3)
+            }
+        }
+        .background {
+            if !event.isRead {
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(.blue.opacity(0.06))
             }
         }
     }

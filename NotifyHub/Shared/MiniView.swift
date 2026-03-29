@@ -64,38 +64,44 @@ struct MiniView: View {
             }
 
             if let event {
-                // Title row
-                HStack(spacing: 4) {
-                    if !event.isRead {
-                        Circle()
-                            .fill(.blue)
-                            .frame(width: 6, height: 6)
+                VStack(alignment: .leading, spacing: 3) {
+                    // Title row
+                    HStack(spacing: 4) {
+                        if !event.isRead {
+                            Circle()
+                                .fill(.blue)
+                                .frame(width: 6, height: 6)
+                        }
+                        Text(event.title)
+                            .font(.system(size: 11, weight: .semibold))
+                            .lineLimit(1)
+                        if event.urgent {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 9))
+                                .foregroundStyle(.orange)
+                        }
                     }
-                    Text(event.title)
-                        .font(.system(size: 11, weight: .semibold))
+
+                    // Message
+                    Text(event.message)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
-                    if event.urgent {
-                        Image(systemName: "exclamationmark.triangle.fill")
+
+                    // Source + time
+                    HStack {
+                        Text(event.source)
                             .font(.system(size: 9))
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(.tertiary)
+                        Spacer()
+                        Text(event.createdAt, style: .relative)
+                            .font(.system(size: 9))
+                            .foregroundStyle(.tertiary)
                     }
                 }
-
-                // Message
-                Text(event.message)
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-
-                // Source + time
-                HStack {
-                    Text(event.source)
-                        .font(.system(size: 9))
-                        .foregroundStyle(.tertiary)
-                    Spacer()
-                    Text(event.createdAt, style: .relative)
-                        .font(.system(size: 9))
-                        .foregroundStyle(.tertiary)
+                .contentShape(Rectangle())
+                .onTapGesture(count: 2) {
+                    Task { await store.toggleRead(event) }
                 }
             } else {
                 Text("No events")

@@ -68,76 +68,78 @@ struct MiniView: View {
                 .buttonStyle(.plain)
             }
 
-            if let event {
-                VStack(alignment: .leading, spacing: 3) {
-                    // Title row
-                    HStack(spacing: 4) {
-                        if !event.isRead {
-                            Circle()
-                                .fill(.blue)
-                                .frame(width: 6, height: 6)
+            Group {
+                if let event {
+                    VStack(alignment: .leading, spacing: 3) {
+                        // Title row
+                        HStack(spacing: 4) {
+                            if !event.isRead {
+                                Circle()
+                                    .fill(.blue)
+                                    .frame(width: 6, height: 6)
+                            }
+                            Text(event.title)
+                                .font(.system(size: 11, weight: .semibold))
+                                .lineLimit(1)
+                            if event.urgent {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 9))
+                                    .foregroundStyle(.orange)
+                            }
                         }
-                        Text(event.title)
-                            .font(.system(size: 11, weight: .semibold))
+
+                        // Message
+                        Text(event.message)
+                            .font(.system(size: 10))
+                            .foregroundStyle(.secondary)
                             .lineLimit(1)
-                        if event.urgent {
-                            Image(systemName: "exclamationmark.triangle.fill")
+
+                        // Source + time
+                        HStack {
+                            Text(event.source)
                                 .font(.system(size: 9))
-                                .foregroundStyle(.orange)
+                                .foregroundStyle(.tertiary)
+                            Spacer()
+                            RelativeTimeText(date: event.createdAt)
+                                .font(.system(size: 9))
+                                .foregroundStyle(.tertiary)
                         }
                     }
-
-                    // Message
-                    Text(event.message)
+                    .contentShape(Rectangle())
+                } else {
+                    Text("No events")
                         .font(.system(size: 10))
                         .foregroundStyle(.secondary)
-                        .lineLimit(1)
-
-                    // Source + time
-                    HStack {
-                        Text(event.source)
-                            .font(.system(size: 9))
-                            .foregroundStyle(.tertiary)
-                        Spacer()
-                        RelativeTimeText(date: event.createdAt)
-                            .font(.system(size: 9))
-                            .foregroundStyle(.tertiary)
-                    }
                 }
-                .contentShape(Rectangle())
-            } else {
-                Text("No events")
-                    .font(.system(size: 10))
-                    .foregroundStyle(.secondary)
+            }
+            .overlay {
+                HStack(spacing: 0) {
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture(count: 2) {
+                            if let event { Task { await store.toggleRead(event) } }
+                        }
+                        .onTapGesture(count: 1) {
+                            withAnimation(.easeInOut(duration: 0.1)) {
+                                currentIndex = max(currentIndex - 1, 0)
+                            }
+                        }
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .onTapGesture(count: 2) {
+                            if let event { Task { await store.toggleRead(event) } }
+                        }
+                        .onTapGesture(count: 1) {
+                            withAnimation(.easeInOut(duration: 0.1)) {
+                                currentIndex = min(currentIndex + 1, max(store.events.count - 1, 0))
+                            }
+                        }
+                }
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .frame(width: 220)
-        .overlay {
-            HStack(spacing: 0) {
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture(count: 2) {
-                        if let event { Task { await store.toggleRead(event) } }
-                    }
-                    .onTapGesture(count: 1) {
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            currentIndex = max(currentIndex - 1, 0)
-                        }
-                    }
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture(count: 2) {
-                        if let event { Task { await store.toggleRead(event) } }
-                    }
-                    .onTapGesture(count: 1) {
-                        withAnimation(.easeInOut(duration: 0.1)) {
-                            currentIndex = min(currentIndex + 1, max(store.events.count - 1, 0))
-                        }
-                    }
-            }
-        }
         .onHover { hovering in
             isHovering = hovering
         }

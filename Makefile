@@ -1,6 +1,8 @@
 XCODE_PROJECT = NotifyHub/NotifyHub.xcodeproj
 DERIVED_DATA = $(HOME)/Library/Developer/Xcode/DerivedData
 MAC_APP = $(shell find $(DERIVED_DATA)/NotifyHub-*/Build/Products/Debug/NotifyHub.app -maxdepth 0 2>/dev/null | head -1)
+MAC_APP_RELEASE = $(shell find $(DERIVED_DATA)/NotifyHub-*/Build/Products/Release/NotifyHub.app -maxdepth 0 2>/dev/null | head -1)
+ICLOUD_APPS = $(HOME)/Library/Mobile Documents/com~apple~CloudDocs/Applications
 
 # --- Backend ---
 
@@ -62,6 +64,18 @@ install-mac: build-mac
 	@rm -rf /Applications/NotifyHub.app
 	@cp -R build/NotifyHub.app /Applications/NotifyHub.app
 	@echo "✓ Installed to /Applications/NotifyHub.app"
+
+# Build Release and copy to iCloud Drive › Applications.
+# Run unquarantine.sh on the receiving Mac before first launch.
+.PHONY: distribute-mac
+
+distribute-mac:
+	xcodebuild -project $(XCODE_PROJECT) -scheme NotifyHub_macOS \
+		-destination 'platform=macOS' -configuration Release build
+	@RELEASE_APP=$$(find $(DERIVED_DATA)/NotifyHub-*/Build/Products/Release/NotifyHub.app -maxdepth 0 2>/dev/null | head -1); \
+		rm -rf "$(ICLOUD_APPS)/NotifyHub.app"; \
+		cp -R "$$RELEASE_APP" "$(ICLOUD_APPS)/NotifyHub.app"
+	@echo "✓ Copied to iCloud Drive › Applications › NotifyHub.app"
 
 # --- iOS ---
 

@@ -37,3 +37,15 @@ targets:
           SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
     entitlements:
       path: Resources/NotifyHub.entitlements
+    postBuildScripts:
+      - name: Copy macOS build to iCloud
+        script: |
+          if [ "$PLATFORM_NAME" = "macosx" ]; then
+            DEST="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Applications"
+            if [ -d "$DEST" ]; then
+              rm -rf "$DEST/NotifyHub.app"
+              cp -R "$BUILT_PRODUCTS_DIR/$WRAPPER_NAME" "$DEST/NotifyHub.app"
+              echo "Copied $WRAPPER_NAME to $DEST"
+            fi
+          fi
+        basedOnDependencyAnalysis: false
